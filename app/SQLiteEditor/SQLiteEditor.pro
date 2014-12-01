@@ -2,8 +2,12 @@ TEMPLATE = app
 
 QT += qml quick sql core widgets
 
+HEADERS += dbthread.h \
+    sqlite.h
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+dbthread.cpp \
+    sqlite.cpp
 
 RESOURCES += qml.qrc
 
