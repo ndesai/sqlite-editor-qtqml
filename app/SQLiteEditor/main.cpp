@@ -3,15 +3,18 @@
 #include <QtQml>
 #include <QQmlApplicationEngine>
 #include <QClipboard>
+#include "sqlite.h"
 
-class Clipboard : public QObject {
+class Utility : public QObject {
     Q_OBJECT
 public:
-    explicit Clipboard(QObject* parent = 0) {
+    explicit Utility(QObject* parent = 0)
+    {
         Q_UNUSED(parent)
     }
 
-    Q_INVOKABLE void setText(QString text) {
+    Q_INVOKABLE void saveTextToClipboard(QString text)
+    {
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setText(text);
     }
@@ -22,12 +25,13 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    qmlRegisterType<Clipboard>("st.app", 1, 0, "Clipboard");
+
+    qmlRegisterType<SQLite>("st.app", 1, 0, "SQLite");
+
+    Utility utility;
+    engine.rootContext()->setContextProperty("$", &utility);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
-    // Step 1: get access to the root object
-    QObject *rootObject = engine.rootObjects().first();
-    QObject *qmlObject = rootObject->findChild<QObject*>("mainWindow");
 
 
     return app.exec();

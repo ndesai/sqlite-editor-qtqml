@@ -1,7 +1,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.0
-import st.app 1.0 as AppStreet
 
 ApplicationWindow {
     id: root
@@ -54,8 +53,4 @@ ApplicationWindow {
         id: _Theme
     }
 
-    property alias clipboard : _Clipboard
-    AppStreet.Clipboard {
-        id: _Clipboard
-    }
 }

@@ -1,26 +1,35 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.0
-import st.app.models 1.0 as Models
 import "views" as Views
 import "utils" as Utils
 import QtQuick.Controls.Styles 1.2
+import st.app 1.0 as AppStreet
+
 
 Views.AppWindow {
     id: superRoot
 
+    property QtObject queries : QtObject {
+        property string tableView : "SELECT * FROM sqlite_master WHERE type = 'table' OR type = 'view' ORDER BY type"
+        property string fat : "SELECT * FROM Track tra JOIN (SELECT * FROM Album alb JOIN Artist art ON art.ArtistId = alb.ArtistId) albart ON tra.AlbumId = albart.AlbumId"
+    }
 
-    Models.SQLiteDatabase {
-        id: sqlite
-        property variant p : superRoot.activeDatabase.toString().split("/") || []
-        source: p[p.length-1]
-
+    AppStreet.SQLite {
+        id: _SQLite
+        databasePath: superRoot.activeDatabase
+        onResultsReady: {
+            console.log("ready = " + query)
+            if(query == queries.tableView)
+            {
+                _ListView_Tables.model = results
+            } else
+            {
+                _TableView.prepareAndSetModel(results)
+            }
+        }
         onDatabaseOpened: {
-            executeQuery("SELECT * FROM sqlite_master WHERE type = 'table'", function(queryString, status, result) {
-                executeQuery("SELECT * FROM sqlite_master WHERE type = 'view'", function(queryString, status, result2) {
-                    _ListView_Tables.model = result.concat(result2)
-                })
-            })
+            executeQuery(queries.tableView)
         }
     }
 
@@ -71,6 +80,23 @@ Views.AppWindow {
         width: 200
         color: theme.white
 
+        Utils.AccentRight {
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.SizeHorCursor
+                property int _x : 0
+                onPressed: {
+                    _x = mouse.x
+                }
+                onPositionChanged: {
+                    _Rectangle_Tables.width = Math.max(200, _Rectangle_Tables.width + mouse.x - _x)
+                }
+            }
+            color: "transparent"
+            width: 4
+            z: 3
+        }
+
         Utils.Blurtangle {
             id: _Item_TablesHeader
             anchors.top: parent.top
@@ -107,19 +133,7 @@ Views.AppWindow {
 
             function getAllTableRowCounts()
             {
-                var m2 = JSON.parse(JSON.stringify(model))
-                var c = 0
-                for(var i = 0; i < model.length; i++)
-                {
-                    sqlite.executeQuery("SELECT count(*) as count FROM " + model[i].name, function(a, b, result, d) {
-                        var m = {}
-                        m.name = model[i].name
-                        m.count = result[0].count
-                        m2[i] = m
-                        if(++c >= model.length)
-                            model = m2
-                    })
-                }
+
             }
 
             onCurrentIndexChanged: {
@@ -206,7 +220,33 @@ Views.AppWindow {
             }
 
             onDoubleClicked: {
-                clipboard.setText(JSON.stringify(_TableView.model[row], null, 2))
+                $.saveTextToClipboard(JSON.stringify(_TableView.model[row], null, 2))
+            }
+
+            function prepareAndSetModel(result)
+            {
+                if(result.length === 0)
+                {
+                    _TableView.model = []
+                    return
+                }
+
+                var columns = Object.keys(result[0])
+
+                for(var i = _TableView.columnCount - 1; i >= 0; i--)
+                {
+                    _TableView.removeColumn(i)
+                }
+
+                for(var j = 0; j < columns.length; j++)
+                {
+                    var c = Qt.createQmlObject(_TableView.tableViewColumnBuilder.replace(/%roleName%/g, columns[j]), _TableView, "")
+                    _TableView.addColumn(c)
+                }
+
+                _TableView.model = result
+
+                _TableView.resizeColumnsToContents()
             }
 
             style: TableViewStyle {
@@ -293,31 +333,7 @@ Views.AppWindow {
                 anchors.bottomMargin: 15
                 text: qsTr("Execute Query")
                 onClicked: {
-                    sqlite.executeQuery(_TextArea_Query.text, function(a, b, result) {
-
-                        if(result.length === 0)
-                        {
-                            _TableView.model = []
-                            return
-                        }
-
-                        var columns = Object.keys(result[0])
-
-                        for(var i = _TableView.columnCount - 1; i >= 0; i--)
-                        {
-                            _TableView.removeColumn(i)
-                        }
-
-                        for(var j = 0; j < columns.length; j++)
-                        {
-                            var c = Qt.createQmlObject(_TableView.tableViewColumnBuilder.replace(/%roleName%/g, columns[j]), _TableView, "")
-                            _TableView.addColumn(c)
-                        }
-
-                        _TableView.model = result
-
-                        _TableView.resizeColumnsToContents()
-                    })
+                    _SQLite.executeQuery(_TextArea_Query.text)
                 }
             }
         }

@@ -1,5 +1,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
+import st.app 1.0 as AppStreet
 
 Rectangle {
     anchors.left: parent.left
@@ -56,6 +57,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         spacing: 10
         Button {
+            height: 30
             text: "Open Database"
             onClicked: {
                  fileDialog.open()
@@ -63,6 +65,7 @@ Rectangle {
         }
 
         Button {
+            height: 30
             text: "Resize Contents"
             onClicked: {
                 _TableView.visible = false
@@ -72,9 +75,54 @@ Rectangle {
         }
 
         Button {
+            height: 30
             text: "All Table Counts"
             onClicked: {
                 _ListView_Tables.getAllTableRowCounts()
+            }
+        }
+
+        Item {
+            width: 30
+            height: 30
+
+            visible: _SQLite.status != AppStreet.SQLite.Ready
+
+            Canvas {
+                id: _Canvas_Spinner
+                anchors.fill: parent
+//                renderTarget: Canvas.FramebufferObject
+//                renderStrategy: Canvas.Threaded
+                property int centerX : width/2
+                property int centerY : height/2
+                property int radius : width / 4
+                property double degree : 290
+
+
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.strokeStyle = theme.text
+                    ctx.beginPath()
+                    ctx.lineWidth = 2
+                    ctx.arc(centerX, centerY, radius, 0, (degree * Math.PI / 180));
+                    ctx.stroke()
+                }
+
+//                layer.enabled: true
+//                layer.smooth: true
+
+                opacity: 0.5
+
+                SequentialAnimation {
+                    loops: Animation.Infinite
+                    running: visible
+                    NumberAnimation {
+                        target: _Canvas_Spinner
+                        property: "rotation"
+                        from: 0; to: 360;
+                        duration: 1200
+                    }
+                }
             }
         }
     }
