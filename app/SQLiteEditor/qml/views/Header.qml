@@ -49,6 +49,15 @@ Rectangle {
         }
     }
 
+    Label {
+        anchors.centerIn: parent
+        horizontalAlignment: Text.AlignHCenter
+        width: 500
+        color: theme.text
+        styleColor: theme.white
+        style: Text.Raised
+        text: [superRoot.title, superRoot.activeDatabase.toString()].filter(Boolean).join(" - ")
+    }
 
     Row {
         anchors.right: parent.right
