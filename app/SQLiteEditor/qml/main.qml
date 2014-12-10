@@ -355,7 +355,4 @@ Views.AppWindow {
             font.family: "Courier"
         }
     }
-
-
-
 }
