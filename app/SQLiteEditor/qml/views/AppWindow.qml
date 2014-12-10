@@ -1,6 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.0
+import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: root
@@ -21,11 +22,15 @@ ApplicationWindow {
         radius: theme.windowRadius
     }
 
+    Settings {
+        property alias url: root.activeDatabase
+    }
+
     property alias fileDialog : _FileDialog
     FileDialog {
         id: _FileDialog
         title: "Please choose a file"
-        nameFilters: [ "SQLite3 Databases (*.db *.sqlite3 *.sqlite)", "All files (*)" ]
+        nameFilters: [ "SQLite3 Databases (*.db *.sqlite3 *.sqlite *.sql3)", "All files (*)" ]
         onAccepted: {
             activeDatabase = fileUrl
         }
@@ -36,8 +41,9 @@ ApplicationWindow {
             title: qsTr("File")
             MenuItem {
                 text: qsTr("&Open")
+                shortcut: StandardKey.Open
                 onTriggered: {
-
+                    fileDialog.open()
                 }
             }
             MenuItem {
