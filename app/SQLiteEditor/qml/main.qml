@@ -56,6 +56,9 @@ Views.AppWindow {
             model: [
                 {
                     image : "img/icon-tables.png"
+                },
+                {
+                    image : "img/icon-sql.png"
                 }
             ]
             delegate: Rectangle {
@@ -67,6 +70,10 @@ Views.AppWindow {
                     width: 32
                     source: modelData.image
                     color: theme.lightblue
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: parent.ListView.view.currentIndex = index
                 }
             }
         }
@@ -353,6 +360,63 @@ Views.AppWindow {
                 frame: Item { }
             }
             font.family: "Courier"
+        }
+    }
+
+    Rectangle {
+        id: _Rectangle_SavedQueries
+        anchors.left: _Rectangle_Navigation.right
+        anchors.top: _Header.bottom
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        color: theme.dirtywhite
+        visible: _ListView_Navigation.currentIndex === 1 ///TODO
+
+        ListView {
+            anchors.fill: parent
+            model: 100
+            delegate: Item {
+                width: ListView.view.width
+                height: 200 /// TODO based on text height
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    color: theme.white
+                    radius: 5
+                    TextEdit {
+                        id: _TextEdit_SavedQuery
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: _Rectangle_Execute.left
+                        font.pixelSize: 24
+                        font.family: "Courier New"
+                        text: "SELECT * FROM"
+                        wrapMode: Text.WordWrap
+                    }
+                    Rectangle {
+                        id: _Rectangle_Execute
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: 80
+                        color: theme.blue
+                        radius: parent.radius
+                        Rectangle {
+                            width: parent.radius
+                            height: parent.height
+                            color: parent.color
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                _TextArea_Query.text = _TextEdit_SavedQuery.text
+                                _Button_Query.clicked()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
