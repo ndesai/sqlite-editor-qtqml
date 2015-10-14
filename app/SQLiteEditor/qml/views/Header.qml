@@ -5,14 +5,18 @@ import st.app 1.0 as AppStreet
 Rectangle {
     anchors.left: parent.left
     anchors.right: parent.right
+
     height: 40
+
     gradient: theme.headerGradient
     radius: theme.windowRadius
 
     MouseArea {
-        anchors.fill: parent
         property int _x
         property int _y
+
+        anchors.fill: parent
+
         onPressed: {
             _x = mouse.x
             _y = mouse.y
@@ -27,20 +31,24 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: 10
+
         height: 14
         spacing: 8
+
         YosemiteButton {
             color: theme.yosemite.exitColor
             onClicked: {
                 Qt.quit()
             }
         }
+
         YosemiteButton {
             color: theme.yosemite.minimizeColor
             onClicked: {
                 superRoot.showMinimized()
             }
         }
+
         YosemiteButton {
             color: theme.yosemite.expandColor
             onClicked: {
@@ -51,20 +59,24 @@ Rectangle {
 
     Label {
         anchors.centerIn: parent
-        horizontalAlignment: Text.AlignHCenter
+
         width: 500
+
+        horizontalAlignment: Text.AlignHCenter
         color: theme.text
         styleColor: theme.white
         style: Text.Raised
-        text: [superRoot.title, superRoot.activeDatabase.toString()].filter(Boolean).join(" - ")
+        text: [superRoot.title, superRoot.activeDatabase.toString().replace("file://", "")].filter(Boolean).join(" - ")
     }
 
     Row {
         anchors.right: parent.right
         anchors.rightMargin: 10
-        layoutDirection: Qt.RightToLeft
         anchors.verticalCenter: parent.verticalCenter
+
+        layoutDirection: Qt.RightToLeft
         spacing: 10
+
         Button {
             height: 30
             text: "Open Database"
@@ -141,6 +153,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+
         height: 1
         color: theme.headerAccent
     }
