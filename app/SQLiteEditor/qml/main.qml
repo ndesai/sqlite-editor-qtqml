@@ -11,7 +11,7 @@ Views.AppWindow {
     id: superRoot
 
     property QtObject queries : QtObject {
-        property string tableView : "SELECT * FROM sqlite_master WHERE type = 'table' OR type = 'view' ORDER BY type"
+        readonly property string tableView : "SELECT * FROM sqlite_master WHERE type = 'table' OR type = 'view' ORDER BY type"
         property string fat : "SELECT * FROM Track tra JOIN (SELECT * FROM Album alb JOIN Artist art ON art.ArtistId = alb.ArtistId) albart ON tra.AlbumId = albart.AlbumId"
     }
 
@@ -20,6 +20,7 @@ Views.AppWindow {
         databasePath: superRoot.activeDatabase
         onResultsReady: {
             console.log("ready = " + query)
+            console.log("results", Object.keys(results))
             if(query == queries.tableView)
             {
                 _ListView_Tables.model = results
@@ -39,18 +40,20 @@ Views.AppWindow {
         z: theme.z.header
     }
 
-
     Rectangle {
         id: _Rectangle_Navigation
-        width: 72
+
         anchors.top: _Header.bottom
         anchors.bottom: parent.bottom
-        color: theme.asphalt
 
+        width: 72
+        color: theme.asphalt
 
         ListView {
             id: _ListView_Navigation
+
             anchors.fill: parent
+
             interactive: false
 
             model: [
@@ -58,6 +61,7 @@ Views.AppWindow {
                     image : "img/icon-tables.png"
                 }
             ]
+
             delegate: Rectangle {
                 width: ListView.view.width
                 height: width
@@ -120,9 +124,9 @@ Views.AppWindow {
             z: 2
         }
 
-
         ListView {
             id: _ListView_Tables
+
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
