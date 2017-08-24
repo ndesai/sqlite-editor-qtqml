@@ -1,5 +1,3 @@
-#ifndef SQLITE_H
-#define SQLITE_H
 // MIT License
 //
 // Copyright (c) 2017 Niraj Desai
@@ -22,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#pragma once
 
 #include <QObject>
 #include <QUrl>
@@ -125,5 +124,3 @@ private:
     QString m_query;
     Status m_status;
 };
-
-#endif // SQLITE_H

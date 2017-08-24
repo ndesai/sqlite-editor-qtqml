@@ -2,6 +2,8 @@ TEMPLATE = app
 
 QT += qml quick sql core widgets
 
+CONFIG += c++11
+
 HEADERS += dbthread.h \
     sqlite.h
 

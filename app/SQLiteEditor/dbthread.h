@@ -1,5 +1,3 @@
-#ifndef DBTHREAD_H
-#define DBTHREAD_H
 // MIT License
 //
 // Copyright (c) 2017 Niraj Desai
@@ -22,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#pragma once
 
 #include <QList>
 #include <QThread>
@@ -62,5 +61,3 @@ private:
     QString m_databaseFilePath;
     
 };
-
-#endif // DBTHREAD_H
