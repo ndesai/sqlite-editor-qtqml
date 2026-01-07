@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick
 
 QtObject {
     property int windowRadius : 8
@@ -58,4 +58,6 @@ QtObject {
 
         return "#"+RR+GG+BB;
     }
+
+    property int fontSizeBody: 13
 }

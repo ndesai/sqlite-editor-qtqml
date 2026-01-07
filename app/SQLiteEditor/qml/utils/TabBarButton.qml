@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 
 import "../utils" as Utils
 Rectangle {
     id: _root

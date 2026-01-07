@@ -31,6 +31,8 @@ SQLite::SQLite(QObject *parent) :
 
     qDebug() << __PRETTY_FUNCTION__;
 
+    m_tableModel = new SqlTableModel(this);
+
     connect(this, SIGNAL(databasePathChanged(QUrl)),
             this, SLOT(createThread(QUrl)));
 }
@@ -67,6 +69,7 @@ void SQLite::slotResults(const QList<QSqlRecord> &result)
     qDebug() << __PRETTY_FUNCTION__;
     qDebug() << "count="<<result.count();
 
+    m_tableModel->setRecords(result);
 
     QVariantList val;
 

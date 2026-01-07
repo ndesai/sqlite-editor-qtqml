@@ -42,7 +42,6 @@ class DbThread : public QThread
 public:
     explicit DbThread(QObject *parent = 0, QString databaseFilePath = "");
     ~DbThread();
-
     void execute( const QString& query );
     
 signals:
@@ -59,5 +58,4 @@ signals:
 private:
     DbWorker* m_worker;
     QString m_databaseFilePath;
-    
 };

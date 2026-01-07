@@ -1,4 +1,4 @@
-import QtQuick 2.3
+import QtQuick 
 
 Image {
     property double finalOpacity : 1.0

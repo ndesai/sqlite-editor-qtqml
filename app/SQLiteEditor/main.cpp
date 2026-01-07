@@ -26,17 +26,16 @@
 #include <QQmlApplicationEngine>
 #include <QClipboard>
 #include "sqlite.h"
+#include <QQuickStyle>
 
 class Utility : public QObject {
     Q_OBJECT
 public:
-    explicit Utility(QObject* parent = 0)
-    {
+    explicit Utility(QObject* parent = 0) {
         Q_UNUSED(parent)
     }
 
-    Q_INVOKABLE void saveTextToClipboard(QString text)
-    {
+    Q_INVOKABLE void saveTextToClipboard(QString text) {
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setText(text);
     }
@@ -48,7 +47,10 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
+    QQuickStyle::setStyle("Material");
+
     qmlRegisterType<SQLite>("st.app", 1, 0, "SQLite");
+    qmlRegisterType<SqlTableModel>("st.app", 1, 0, "SqlTableModel");
 
     Utility utility;
     engine.rootContext()->setContextProperty("$", &utility);

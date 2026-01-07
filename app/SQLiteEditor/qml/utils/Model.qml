@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import st.app.models 1.0 as Models
+import QtQuick 
+import st.app.models  as Models
 
 Models.SQLiteDatabase {
     id: root

@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import QtGraphicalEffects 1.0 as QGE
+import QtQuick 
+import Qt5Compat.GraphicalEffects as QGE
 
 Item {
     property alias source: _Image.source

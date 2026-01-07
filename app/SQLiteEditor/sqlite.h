@@ -37,6 +37,7 @@
 #include <QJSValueList>
 
 #include "dbthread.h"
+#include "SqlTableModel.h"
 
 class SQLite : public QObject
 {
@@ -45,6 +46,7 @@ class SQLite : public QObject
     Q_PROPERTY(QUrl databasePath READ databasePath WRITE setDatabasePath NOTIFY databasePathChanged)
     Q_PROPERTY(QString query READ getQuery WRITE setQuery NOTIFY queryChanged)
     Q_PROPERTY(Status status READ getStatus WRITE setStatus NOTIFY statusChanged)
+    Q_PROPERTY(SqlTableModel* tableModel READ tableModel CONSTANT)
 
 public:
     explicit SQLite(QObject *parent = 0);
@@ -69,16 +71,17 @@ public:
         return m_status;
     }
 
+    SqlTableModel* tableModel() const
+    {
+        return m_tableModel;
+    }
+
 signals:
 
     void databaseOpened();
-
     void databasePathChanged(QUrl arg);
-
     void queryChanged(QString arg);
-
     void statusChanged(Status arg);
-
     void resultsReady(QVariantList results, QString query);
 
 private slots:
@@ -89,9 +92,7 @@ private slots:
 public slots:
     void executeQuery(QString);
 
-void setDatabasePath(QUrl arg)
-{
-    qDebug() << __PRETTY_FUNCTION__ << arg;
+void setDatabasePath(QUrl arg) {
     if (m_databasePath == arg)
         return;
 
@@ -99,8 +100,7 @@ void setDatabasePath(QUrl arg)
     emit databasePathChanged(arg);
 }
 
-void setQuery(QString arg)
-{
+void setQuery(QString arg) {
     if (m_query == arg)
         return;
 
@@ -108,8 +108,7 @@ void setQuery(QString arg)
     emit queryChanged(arg);
 }
 
-void setStatus(Status arg)
-{
+void setStatus(Status arg) {
     if (m_status == arg)
         return;
 
@@ -123,4 +122,5 @@ private:
     QUrl m_databasePath;
     QString m_query;
     Status m_status;
+    SqlTableModel *m_tableModel;
 };

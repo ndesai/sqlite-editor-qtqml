@@ -42,8 +42,6 @@ signals:
      QSqlDatabase m_database;
 };
 
-//
-
 DbWorker::DbWorker( QObject* parent, QString databasePath )
     : QObject( parent )
 {

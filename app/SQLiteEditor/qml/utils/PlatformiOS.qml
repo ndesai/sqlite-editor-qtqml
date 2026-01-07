@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import st.app.platform 1.0
+import QtQuick 
+import st.app.platform 
 PlatformiOS {
     //    signal  applicationDidBecomeActive();
     //    signal  applicationWillResignActive();

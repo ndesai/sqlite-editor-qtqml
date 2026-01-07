@@ -1,5 +1,5 @@
-import QtQuick 2.3
-import QtQuick.Window 2.1
+import QtQuick 
+import QtQuick.Window 
 
 Window {
     property bool showFills : false

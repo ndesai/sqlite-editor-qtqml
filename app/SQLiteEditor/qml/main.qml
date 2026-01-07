@@ -1,18 +1,16 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Dialogs 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Dialogs
+import Qt.labs.qmlmodels
 import "views" as Views
 import "utils" as Utils
-import QtQuick.Controls.Styles 1.2
-import st.app 1.0 as AppStreet
-
+import st.app  as AppStreet
 
 Views.AppWindow {
     id: superRoot
 
     property QtObject queries : QtObject {
         readonly property string tableView : "SELECT * FROM sqlite_master WHERE type = 'table' OR type = 'view' ORDER BY type"
-        property string fat : "SELECT * FROM Track tra JOIN (SELECT * FROM Album alb JOIN Artist art ON art.ArtistId = alb.ArtistId) albart ON tra.AlbumId = albart.AlbumId"
     }
 
     AppStreet.SQLite {
@@ -20,12 +18,9 @@ Views.AppWindow {
         databasePath: superRoot.activeDatabase
         onResultsReady: {
             console.log("ready = " + query)
-            console.log("results", Object.keys(results))
-            if(query == queries.tableView)
-            {
+            if (query == queries.tableView) {
                 _ListView_Tables.model = results
-            } else
-            {
+            } else {
                 _TableView.prepareAndSetModel(results)
             }
         }
@@ -58,7 +53,7 @@ Views.AppWindow {
 
             model: [
                 {
-                    image : "img/icon-tables.png"
+                    image : "qrc:/qml/img/icon-tables.png"
                 }
             ]
 
@@ -131,17 +126,14 @@ Views.AppWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-
             currentIndex: -1
             z: 1
 
-            function getAllTableRowCounts()
-            {
+            function getAllTableRowCounts() {
 
             }
 
             onCurrentIndexChanged: {
-
                 _TextArea_Query.text = "SELECT * FROM " + currentItem.dataModel.name
                 _Button_Query.clicked()
             }
@@ -204,146 +196,151 @@ Views.AppWindow {
         }
     }
 
-    Item {
+    Pane {
         id: _Item_Container
         anchors.top: _Header.bottom
         anchors.left: _Rectangle_Tables.right
         anchors.right: _Item_RowDetail.left
         anchors.bottom: parent.bottom
+        clip: true
 
-        TableView {
-            id: _TableView
-            property string tableViewColumnBuilder : "import QtQuick 2.3; import QtQuick.Controls 1.0; import QtQuick.Layouts 1.0; TableViewColumn { role: \"%roleName%\"; title: role; width: 100 }"
+        ListView {
+            id: _ListView_Columns
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: _TextArea_Query.top
+            height: 30
+            orientation: ListView.Horizontal
+            model: _SQLite.tableModel ? _SQLite.tableModel.columnNames : []
+            clip: true
+            contentX: _TableView.contentX
+            interactive: false
 
-            onClicked: {
-                _TextArea_RowDetail.text = JSON.stringify(_TableView.model[row], null, 2)
+            delegate: Item {
+                width: 140
+                height: _ListView_Columns.height
+                Views.Label {
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    verticalAlignment: Text.AlignVCenter
+                    text: modelData
+                    font.bold: true
+                    elide: Text.ElideRight
+                    color: theme.black
+                    font.pixelSize: theme.fontSizeBody
+                }
+                Utils.AccentBottom {
+                    color: theme.lightgray
+                    height: 2
+                }
+                Utils.AccentRight {
+                    color: theme.lightgray
+                    width: 3
+                }
+            }
+            z: 2
+        }
+
+        TableView {
+            id: _TableView
+            property string tableViewColumnBuilder : "import QtQuick; import Qt.labs.qmlmodels; TableModelColumn { display: \"%roleName%\" }"
+            anchors.top: _ListView_Columns.bottom
+            anchors.topMargin: 6
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: _Pane_Query.top
+            clip: true
+            z: 1
+
+            property int selectedRow: -1
+
+            onSelectedRowChanged: {
+                if (selectedRow >= 0 && selectedRow < model.count) {
+                    _TextArea_RowDetail.text = JSON.stringify(model.get(selectedRow), null, 2)
+                }
             }
 
-            onDoubleClicked: {
-                $.saveTextToClipboard(JSON.stringify(_TableView.model[row], null, 2))
+            delegate: TextField {
+                implicitWidth: 140
+                implicitHeight: 36
+                horizontalAlignment: Text.AlignHCenter
+                text: model.display
+                font.bold: row == _TableView.selectedRow
+                font.pixelSize: theme.fontSizeBody
+                background: null
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: row%2==0 ? "transparent" : theme.dirtywhite
+                    z: -1
+                }
+
+                Utils.AccentBottom {
+                    color: theme.lightgray
+                    height: 2
+                }
+                Utils.AccentRight {
+                    color: theme.lightgray
+                    width: 3
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+
+                    onClicked: {
+                        _TableView.selectedRow = row;
+                    }
+
+                    onDoubleClicked: {
+                        $.saveTextToClipboard(JSON.stringify(_TableView.model.get(row), null, 2))
+                    }
+                }
             }
 
-            function prepareAndSetModel(result)
-            {
-                if(result.length === 0)
-                {
-                    _TableView.model = []
+            function prepareAndSetModel(result) {
+                if (result.length === 0) {
+                    _TableView.model = null
                     return
                 }
-
-                var columns = Object.keys(result[0])
-
-                for(var i = _TableView.columnCount - 1; i >= 0; i--)
-                {
-                    _TableView.removeColumn(i)
-                }
-
-                for(var j = 0; j < columns.length; j++)
-                {
-                    var c = Qt.createQmlObject(_TableView.tableViewColumnBuilder.replace(/%roleName%/g, columns[j]), _TableView, "")
-                    _TableView.addColumn(c)
-                }
-
-                _TableView.model = result
-
-                _TableView.resizeColumnsToContents()
-            }
-
-            style: TableViewStyle {
-                id: _TableViewStyle
-                backgroundColor: theme.white
-                alternateBackgroundColor: theme.superlightgray
-                textColor: theme.text
-                highlightedTextColor: theme.black
-                corner: Item { }
-                frame: Item { }
-                rowDelegate: Rectangle {
-                    height: 40
-                    color: styleData.alternate ? _TableViewStyle.alternateBackgroundColor : _TableViewStyle.backgroundColor
-                    Utils.AccentBottom {
-                        color: theme.headerAccent
-                        opacity: 0.3
-                    }
-                }
-                headerDelegate: Rectangle {
-                    color: theme.white
-                    height: 20
-                    clip: true
-                    Utils.AccentBottom {
-                        color: theme.headerAccent
-                    }
-                    Utils.AccentRight {
-                        color: theme.headerAccent
-                        opacity: 0.3
-                    }
-                    Text {
-                        width: parent.width
-                        anchors.left: parent.left
-                        anchors.leftMargin: 4
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.bold: true
-                        font.pixelSize: 10
-                        elide: Text.ElideRight
-                        color: theme.text
-                        text: String(styleData.value)
-                    }
-                }
-            }
-
-            itemDelegate: Item {
-                width: 100
-                clip: true
-
-                Utils.AccentRight {
-                    color: theme.headerAccent
-                    opacity: 0.3
-                }
-
-                Views.Label {
-                    id: _Text
-                    anchors.left: parent.left
-                    anchors.leftMargin: 8
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: styleData.textColor
-                    elide: Text.ElideRight
-                    wrapMode: Text.NoWrap
-                    width: parent.width
-                    text: String(styleData.value)
-                }
+                _TableView.model = _SQLite.tableModel
             }
         }
 
-        TextArea {
-            id: _TextArea_Query
+        Pane {
+            id: _Pane_Query
             anchors.horizontalCenterOffset: 0
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             width: parent.width
             height: 150
-            font.family: "Courier"
-            style: TextAreaStyle {
-                frame: Item { }
-            }
+            TextArea {
+                id: _TextArea_Query
+                anchors.fill: parent
+                font.family: "Courier"
+                z: 2
 
-            Button {
-                id: _Button_Query
-                anchors.right: parent.right
-                anchors.rightMargin: 15
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 15
-                text: qsTr("Execute Query")
-                onClicked: {
-                    _SQLite.executeQuery(_TextArea_Query.text)
+                Keys.onReturnPressed: {
+                    _Button_Query.clicked();
+                }
+
+                Button {
+                    id: _Button_Query
+                    anchors.right: parent.right
+                    anchors.rightMargin: 15
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 15
+                    text: qsTr("Execute Query")
+                    onClicked: {
+                        _TextArea_Query.text = _TextArea_Query.text.trim();
+                        _SQLite.executeQuery(_TextArea_Query.text);
+                        _TableView.contentY = 0;
+                    }
                 }
             }
         }
     }
 
-    Item {
+    Pane {
         id: _Item_RowDetail
         width: 400
         anchors.top: _Header.bottom
@@ -353,10 +350,9 @@ Views.AppWindow {
         TextArea {
             id: _TextArea_RowDetail
             anchors.fill: parent
-            style: TextAreaStyle {
-                frame: Item { }
-            }
+            font.bold: true
             font.family: "Courier"
+            font.pixelSize: theme.fontSizeBody
         }
     }
 }

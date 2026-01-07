@@ -1,15 +1,17 @@
 TEMPLATE = app
 
-QT += qml quick sql core widgets
+QT += qml quick sql core widgets quickcontrols2
 
 CONFIG += c++11
 
 HEADERS += dbthread.h \
-    sqlite.h
+    sqlite.h \
+    SqlTableModel.h
 
 SOURCES += main.cpp \
 dbthread.cpp \
-    sqlite.cpp
+    sqlite.cpp \
+    SqlTableModel.cpp
 
 RESOURCES += qml.qrc
 

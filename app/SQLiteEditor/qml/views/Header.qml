@@ -1,6 +1,6 @@
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import st.app 1.0 as AppStreet
+import QtQuick
+import QtQuick.Controls
+import st.app as AppStreet
 
 Rectangle {
     anchors.left: parent.left
@@ -17,11 +17,12 @@ Rectangle {
 
         anchors.fill: parent
 
-        onPressed: {
+        function onPressed(mouse) {
             _x = mouse.x
             _y = mouse.y
         }
-        onPositionChanged: {
+
+        function onPositionChanged(mouse) {
             superRoot.x = superRoot.x + mouse.x - _x
             superRoot.y = superRoot.y + mouse.y - _y
         }
